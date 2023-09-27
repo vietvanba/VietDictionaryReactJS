@@ -15,3 +15,16 @@ export function getCookie(name) {
   }
   return null;
 }
+export function clearCookie(name) {
+  document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
+export function checkLogin() {
+  const cookie = getCookie("user");
+  if (cookie != null) {
+    console.log("true");
+    return true;
+  } else {
+    console.log("false");
+    return false;
+  }
+}
