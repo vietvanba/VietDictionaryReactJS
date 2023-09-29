@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 function SearchDictionary() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+  const handleEnter = (e) => {
+    if (e.key === "Enter") {
+      navigate("/search/" + searchTerm);
+    }
   };
   return (
     <div className="w-full max-w-4xl mx-auto mt-4">
@@ -15,6 +21,7 @@ function SearchDictionary() {
           placeholder="Search..."
           value={searchTerm}
           onChange={handleChange}
+          onKeyPress={handleEnter}
         />
         <div className="absolute top-0 left-0 flex items-center h-full ml-3">
           {loading ? (
@@ -36,7 +43,7 @@ function SearchDictionary() {
             </svg>
           )}
         </div>
-        {searchResults.length > 0 && (
+        {/* {searchResults.length > 0 && (
           <div className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg">
             <ul>
               {searchResults.map((result) => (
@@ -53,7 +60,7 @@ function SearchDictionary() {
               ))}
             </ul>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
