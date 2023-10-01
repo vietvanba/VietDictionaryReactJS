@@ -4,13 +4,14 @@ import { loading } from "./Loading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faVolumeUp } from "@fortawesome/free-solid-svg-icons";
 import CarouselImage from "./CarouselImage";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 export function sense(data) {
   return (
     <>
       <div>{data.sense}</div>
-      <ul className="pl-4">
+      <ul className="pl-4 pt-2">
         {data.examples.map((x) => {
-          return <li className="list-disc">{x}</li>;
+          return <li className="list-disc text-base pt-2 italic">{x}</li>;
         })}
       </ul>
     </>
@@ -19,19 +20,21 @@ export function sense(data) {
 export function pronunciation(word, pro, lang) {
   return (
     <>
-      <div className="text-lg flex items-center pt-2">
+      <div
+        className={
+          lang == "English"
+            ? "hover:text-blue-600 text-lg flex items-center pt-2"
+            : "hover:text-red-600 text-lg flex items-center pt-2"
+        }
+        onClick={() => {
+          let audio = new Audio(pro.mp3_url);
+          audio.play();
+        }}
+      >
         <FontAwesomeIcon
-          className={
-            lang == "English"
-              ? "hover:text-blue-600 pr-2"
-              : "hover:text-red-600 pr-2"
-          }
+          className="pr-2"
           icon={faVolumeUp}
           title={word + " pronunciation " + lang}
-          onClick={() => {
-            let audio = new Audio(pro.mp3_url);
-            audio.play();
-          }}
         />
         <div
           className="pb-1"
@@ -45,7 +48,10 @@ export function pronunciation(word, pro, lang) {
 }
 export function DescriptionOfWord(props) {
   const [json, SetJson] = useState();
+  const [flag, SetFlag] = useState(0);
   useEffect(() => {
+    SetFlag(0);
+    SetJson(null);
     get("/api/v1/search?word=" + props.word)
       .then((res) => {
         if (res.status == 200) {
@@ -54,25 +60,40 @@ export function DescriptionOfWord(props) {
       })
       .catch((error) => {
         console.error(error);
+        SetFlag(1);
       });
   }, [props.word]);
   return (
     <>
-      {json ? (
+      {json && flag === 0 ? (
         <div className="w-full max-w-4xl mx-auto mt-4 font-sans">
           <div className="relative">
-            <h1 className="inline-block text-4xl font-medium text-blue-600">
-              {json.word}
-            </h1>
-            <span className="italic px-4">{json.partOfSpeech}</span>
+            <div className="items-end">
+              <h1 className="flex-none text-4xl font-medium text-blue-600">
+                {json.word}
+                <FontAwesomeIcon
+                  className="text-black text-2xl pb-1 pl-3 hover:text-yellow-300"
+                  title="Favorite?"
+                  icon={faStar}
+                />
+              </h1>
+              <span className="italic">{json.partOfSpeech}</span>
+            </div>
             {pronunciation(json.word, json.uk, "English")}
             {pronunciation(json.word, json.us, "American")}
-            <ol className="list-decimal pl-4">
+            <ol className="list-decimal pl-4 text-lg pt-2">
               {json.senses.map((x) => {
-                return <li>{sense(x)}</li>;
+                return <li className="pt-2">{sense(x)}</li>;
               })}
             </ol>
             <CarouselImage slides={json.images} />
+          </div>
+        </div>
+      ) : flag === 1 ? (
+        <div className="w-full max-w-4xl mx-auto mt-4">
+          <div className="relative text-center text-6xl">
+            <code className="font-bold text-blue-600">{props.word}</code> is not
+            found!
           </div>
         </div>
       ) : (
